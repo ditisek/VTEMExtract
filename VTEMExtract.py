@@ -17,13 +17,14 @@
 # v1.3 - Add Gyro extraction
 # v1.4 - Port GUI to wx, check if files exist before overwriting
 
-from tkinter import *
+# from tkinter import *
 import os
 import csv
 import math
 from geotech import *
+import wx
 
-master = Tk()
+# master = Tk()
 
 
 def distance(lat1, lng1, lat2, lng2):
@@ -42,7 +43,7 @@ def distance(lat1, lng1, lat2, lng2):
     return radius * ang
 
 
-def vtem_extract():
+def vtem_extract(d, kst, kml):
     file_names = get_file()
     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
     # utc = '0'
@@ -361,9 +362,12 @@ def vtem_extract():
 
     fout.close()
 
-    rem_d = var1.get()
-    kst_create = var2.get()
-    kml_create = var3.get()
+    # rem_d = var1.get()
+    rem_d = d
+    # kst_create = var2.get()
+    kst_create = kst
+    # kml_create = var3.get()
+    kml_create = kml
 
     if kst_create == 1:
         create_kst_xml(path, current_path)
@@ -378,42 +382,142 @@ def vtem_extract():
             print("{} deleted".format(file))
 
 
-def var_states():
-    print("d: %d\nkst: %d\nkml: %d" % (var1.get(), var2.get(), var3.get()))
+# def var_states():
+#     print("d: %d\nkst: %d\nkml: %d" % (var1.get(), var2.get(), var3.get()))
+#
+#
+# def d_create():
+#     print("Hello")
+#
+#
+# def kst_create():
+#     path = get_file("*.csv")
+#     path = path[0].rsplit("\\", 1)[0]
+#     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
+#     create_kst_xml(path, current_path)
+#
+#
+# def kml_create():
+#     path = get_file("*.csv")
+#     path = path[0].rsplit("\\", 1)[0]
+#     create_kml(path)
+#
+#
+# Label(master, text="Settings:").grid(row=0, sticky=W)
+# var1 = IntVar()
+# Checkbutton(master, text="Remove D Files", variable=var1).grid(row=1, sticky=W)
+# var2 = IntVar(value=1)
+# Checkbutton(master, text="Create KST Template", variable=var2).grid(row=2, sticky=W)
+# var3 = IntVar(value=1)
+# Checkbutton(master, text="Create KML File", variable=var3).grid(row=3, sticky=W)
+# Button(master, text='Extract VTEM',
+#        command=vtem_extract).grid(row=4, sticky=W, pady=4, padx=45)
+# Button(master, text='Extract BIN',
+#        command=bin_extract).grid(row=5, sticky=W, pady=4, padx=50)
+# Button(master, text='Create KST Template',
+#        command=kst_create).grid(row=6, sticky=W, pady=4, padx=25)
+# Button(master, text='Create KML',
+#        command=kml_create).grid(row=7, sticky=W, pady=4, padx=50)
+# Button(master, text='Quit',
+#        command=master.quit).grid(row=8, sticky=W, pady=4, padx=70)
+# mainloop()
 
 
-def d_create():
-    print("Hello")
+class MyFrame(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: MyFrame.__init__
+        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.SetSize((291, 349))
+        self.SetTitle("Extract by David")
 
+        self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
-def kst_create():
-    path = get_file("*.csv")
-    path = path[0].rsplit("\\", 1)[0]
-    current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
-    create_kst_xml(path, current_path)
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
+        bitmap_Geotech = wx.StaticBitmap(self.panel_1, wx.ID_ANY, wx.Bitmap("Geotech.bmp", wx.BITMAP_TYPE_ANY))
+        sizer_1.Add(bitmap_Geotech, 0, 0, 0)
 
-def kml_create():
-    path = get_file("*.csv")
-    path = path[0].rsplit("\\", 1)[0]
-    create_kml(path)
+        static_line_1 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_1, 0, wx.EXPAND, 0)
 
+        label_vtemextract = wx.StaticText(self.panel_1, wx.ID_ANY, "VTEMExtract")
+        label_vtemextract.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
+        sizer_1.Add(label_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-Label(master, text="Settings:").grid(row=0, sticky=W)
-var1 = IntVar()
-Checkbutton(master, text="Remove D Files", variable=var1).grid(row=1, sticky=W)
-var2 = IntVar(value=1)
-Checkbutton(master, text="Create KST Template", variable=var2).grid(row=2, sticky=W)
-var3 = IntVar(value=1)
-Checkbutton(master, text="Create KML File", variable=var3).grid(row=3, sticky=W)
-Button(master, text='Extract VTEM',
-       command=vtem_extract).grid(row=4, sticky=W, pady=4, padx=45)
-Button(master, text='Extract BIN',
-       command=bin_extract).grid(row=5, sticky=W, pady=4, padx=50)
-Button(master, text='Create KST Template',
-       command=kst_create).grid(row=6, sticky=W, pady=4, padx=25)
-Button(master, text='Create KML',
-       command=kml_create).grid(row=7, sticky=W, pady=4, padx=50)
-Button(master, text='Quit',
-       command=master.quit).grid(row=8, sticky=W, pady=4, padx=70)
-mainloop()
+        static_line_2 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_2, 0, wx.EXPAND, 0)
+
+        self.checkbox_removeD = wx.CheckBox(self.panel_1, wx.ID_ANY, "Remove D Files")
+        self.checkbox_removeD.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.checkbox_removeD, 0, wx.ALL, 2)
+
+        self.checkbox_createKST = wx.CheckBox(self.panel_1, wx.ID_ANY, "Create KST Template")
+        self.checkbox_createKST.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.checkbox_createKST.SetValue(1)
+        sizer_1.Add(self.checkbox_createKST, 0, wx.ALL, 2)
+
+        self.checkbox_createkml = wx.CheckBox(self.panel_1, wx.ID_ANY, "Create KML files")
+        self.checkbox_createkml.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.checkbox_createkml.SetValue(1)
+        sizer_1.Add(self.checkbox_createkml, 0, wx.ALL, 2)
+
+        self.button_vtemextract = wx.Button(self.panel_1, wx.ID_ANY, "Extract VTEM data")
+        self.button_vtemextract.SetMinSize((140, 25))
+        self.button_vtemextract.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.button_extractbin = wx.Button(self.panel_1, wx.ID_ANY, "Extract BIN file")
+        self.button_extractbin.SetMinSize((120, 25))
+        self.button_extractbin.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_extractbin, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.button_createkst = wx.Button(self.panel_1, wx.ID_ANY, "Create KST template")
+        self.button_createkst.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_createkst, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.button_createkml = wx.Button(self.panel_1, wx.ID_ANY, "Create KML file")
+        self.button_createkml.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_createkml, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.panel_1.SetSizer(sizer_1)
+
+        self.Layout()
+
+        self.Bind(wx.EVT_BUTTON, self.vtem_pressed, self.button_vtemextract)
+        self.Bind(wx.EVT_BUTTON, self.bin_pressed, self.button_extractbin)
+        self.Bind(wx.EVT_BUTTON, self.kst_pressed, self.button_createkst)
+        self.Bind(wx.EVT_BUTTON, self.kml_pressed, self.button_createkml)
+        # end wxGlade
+
+    def vtem_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        print("Event handler 'vtem_pressed' not implemented!")
+        event.Skip()
+
+    def bin_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        print("Event handler 'bin_pressed' not implemented!")
+        bin_extract()
+        event.Skip()
+
+    def kst_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        print("Event handler 'kst_pressed' not implemented!")
+        event.Skip()
+
+    def kml_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        print("Event handler 'kml_pressed' not implemented!")
+        event.Skip()
+
+# end of class MyFrame
+
+class MyApp(wx.App):
+    def OnInit(self):
+        self.frame = MyFrame(None, wx.ID_ANY, "")
+        self.SetTopWindow(self.frame)
+        self.frame.Show()
+        return True
+
+# end of class MyApp
+
+if __name__ == "__main__":
+    app = MyApp(0)
+    app.MainLoop()
