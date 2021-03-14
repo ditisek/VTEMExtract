@@ -15,16 +15,13 @@
 # v1.1 - Add ability to select multiple files
 # v1.2 - Add GUI with checkbox
 # v1.3 - Add Gyro extraction
-# v1.4 - Port GUI to wx, check if files exist before overwriting
+# v1.4 - Port GUI to wx
 
-# from tkinter import *
 import os
 import csv
 import math
-from geotech import *
+import geotech
 import wx
-
-# master = Tk()
 
 
 def distance(lat1, lng1, lat2, lng2):
@@ -44,15 +41,19 @@ def distance(lat1, lng1, lat2, lng2):
 
 
 def vtem_extract(d, kst, kml):
-    file_names = get_file()
+    # file_names = get_file.get_file()
+    style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+    # dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
+    dialog = wx.FileDialog(None, 'Open', wildcard='*.d', style=style | wx.FD_MULTIPLE)
+    if dialog.ShowModal() == wx.ID_OK:
+        # path = dialog.GetPath()
+        path = dialog.GetPaths()
+    else:
+        path = None
+    file_names = path
     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
-    # utc = '0'
     lno = '0'
     ralt = '0'
-    # lat = '0'
-    # lon = '0'
-    # height = '0'
-    # nosats = '0'
     pkir = '0'
     pkbz = '0'
     pkbx = '0'
@@ -87,8 +88,6 @@ def vtem_extract(d, kst, kml):
     lat1 = 0
     lon1 = 0
     height1 = '0'
-    # speed = '0'
-    # crate = '0'
     total_lines = 0
     gyro1 = '0'
     gyro2 = '0'
@@ -134,8 +133,6 @@ def vtem_extract(d, kst, kml):
         print(files_d[a])
 
         open(files_d[a], 'r')
-
-        # readcsv = csv.reader(files_d[a])
 
         fout = open(fnameout, 'a')
 
@@ -362,18 +359,17 @@ def vtem_extract(d, kst, kml):
 
     fout.close()
 
-    # rem_d = var1.get()
     rem_d = d
-    # kst_create = var2.get()
     kst_create = kst
-    # kml_create = var3.get()
     kml_create = kml
 
     if kst_create == 1:
-        create_kst_xml(path, current_path)
+        print('kst is true')
+        geotech.create_kst_xml(path, current_path)
 
     if kml_create == 1:
-        create_kml(path)
+        print('kml is true')
+        geotech.create_kml(path)
 
     if rem_d == 1:
         for file in files_d:
@@ -491,24 +487,62 @@ class MyFrame(wx.Frame):
         # end wxGlade
 
     def vtem_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'vtem_pressed' not implemented!")
+        d = self.checkbox_removeD.GetValue()
+        kst = self.checkbox_createKST.GetValue()
+        kml = self.checkbox_createkml.GetValue()
+        vtem_extract(d, kst, kml)
+        print("Extract done")
         event.Skip()
 
     def bin_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'bin_pressed' not implemented!")
-        bin_extract()
+        # print("Event handler 'bin_pressed' not implemented!")
+        # app = wx.App(None)
+        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+        dialog = wx.FileDialog(None, 'Open', wildcard='*.bin', style=style)
+        if dialog.ShowModal() == wx.ID_OK:
+            path = dialog.GetPath()
+        else:
+            path = None
+        geotech.bin_extract(path)
+        print("Done!!!")
         event.Skip()
 
     def kst_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'kst_pressed' not implemented!")
+        # print("Event handler 'kst_pressed' not implemented!")
+        # path = get_file("*.csv")
+        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+        dialog = wx.FileDialog(None, 'Open', wildcard='*.csv', style=style)
+        if dialog.ShowModal() == wx.ID_OK:
+            path = dialog.GetPath()
+        else:
+            path = None
+        path = path.rsplit("\\", 1)[0]
+        current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
+        geotech.create_kst_xml(path, current_path)
+        # path = os.path
+        # file_kst = get_file('*.csv')
+        # file_kst = path + '\\' + file_kst
+        # create_kst_xml(file_kst)
         event.Skip()
 
     def kml_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Event handler 'kml_pressed' not implemented!")
+        # print("Event handler 'kml_pressed' not implemented!")
+        # path = get_file("*.csv")
+        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+        dialog = wx.FileDialog(None, 'Open', wildcard='*.csv', style=style)
+        if dialog.ShowModal() == wx.ID_OK:
+            path = dialog.GetPath()
+        else:
+            path = None
+        path = path.rsplit("\\", 1)[0]
+        geotech.create_kml(path)
+        print('help!')
+        # file_kml = get_file("*.csv")
+        # create_kml(file_kml)
         event.Skip()
 
-# end of class MyFrame
 
+# end of class MyFrame
 class MyApp(wx.App):
     def OnInit(self):
         self.frame = MyFrame(None, wx.ID_ANY, "")
@@ -516,8 +550,8 @@ class MyApp(wx.App):
         self.frame.Show()
         return True
 
-# end of class MyApp
 
+# end of class MyApp
 if __name__ == "__main__":
     app = MyApp(0)
     app.MainLoop()
