@@ -15,6 +15,7 @@
 # v1.1 - Add ability to select multiple files
 # v1.2 - Add GUI with checkbox
 # v1.3 - Add Gyro extraction
+# v1.4 - Port GUI to wx, check if files exist before overwriting
 
 from tkinter import *
 import os
