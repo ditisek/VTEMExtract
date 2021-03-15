@@ -366,11 +366,13 @@ def vtem_extract(d, kst, kml):
 
     if kst_create == 1:
         print('kst is true')
-        geotech.create_kst_xml(path, current_path)
+        file_kst = path + '\\PlotEM.kst'
+        geotech.create_kst_xml(file_kst, current_path)
 
     if kml_create == 1:
         print('kml is true')
-        geotech.create_kml(path)
+        file_csv = path + '\\VTEMExtracted.csv'
+        geotech.create_kml(file_csv)
 
     if rem_d == 1:
         for file in files_d:
@@ -379,60 +381,19 @@ def vtem_extract(d, kst, kml):
             print("{} deleted".format(file))
 
 
-# def var_states():
-#     print("d: %d\nkst: %d\nkml: %d" % (var1.get(), var2.get(), var3.get()))
-#
-#
-# def d_create():
-#     print("Hello")
-#
-#
-# def kst_create():
-#     path = get_file("*.csv")
-#     path = path[0].rsplit("\\", 1)[0]
-#     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
-#     create_kst_xml(path, current_path)
-#
-#
-# def kml_create():
-#     path = get_file("*.csv")
-#     path = path[0].rsplit("\\", 1)[0]
-#     create_kml(path)
-#
-#
-# Label(master, text="Settings:").grid(row=0, sticky=W)
-# var1 = IntVar()
-# Checkbutton(master, text="Remove D Files", variable=var1).grid(row=1, sticky=W)
-# var2 = IntVar(value=1)
-# Checkbutton(master, text="Create KST Template", variable=var2).grid(row=2, sticky=W)
-# var3 = IntVar(value=1)
-# Checkbutton(master, text="Create KML File", variable=var3).grid(row=3, sticky=W)
-# Button(master, text='Extract VTEM',
-#        command=vtem_extract).grid(row=4, sticky=W, pady=4, padx=45)
-# Button(master, text='Extract BIN',
-#        command=bin_extract).grid(row=5, sticky=W, pady=4, padx=50)
-# Button(master, text='Create KST Template',
-#        command=kst_create).grid(row=6, sticky=W, pady=4, padx=25)
-# Button(master, text='Create KML',
-#        command=kml_create).grid(row=7, sticky=W, pady=4, padx=50)
-# Button(master, text='Quit',
-#        command=master.quit).grid(row=8, sticky=W, pady=4, padx=70)
-# mainloop()
-
-
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((291, 349))
+        self.SetSize((291, 507))
         self.SetTitle("Extract by David")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
 
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
 
-        bitmap_Geotech = wx.StaticBitmap(self.panel_1, wx.ID_ANY, wx.Bitmap("Geotech.bmp", wx.BITMAP_TYPE_ANY))
+        bitmap_Geotech = wx.StaticBitmap(self.panel_1, wx.ID_ANY, wx.Bitmap("C:/Users/David/Google Drive/Programming/Python/GUI Builder/MyGUI/Geotech.bmp", wx.BITMAP_TYPE_ANY))
         sizer_1.Add(bitmap_Geotech, 0, 0, 0)
 
         static_line_1 = wx.StaticLine(self.panel_1, wx.ID_ANY)
@@ -440,10 +401,10 @@ class MyFrame(wx.Frame):
 
         label_vtemextract = wx.StaticText(self.panel_1, wx.ID_ANY, "VTEMExtract")
         label_vtemextract.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
-        sizer_1.Add(label_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+        sizer_1.Add(label_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 1)
 
-        static_line_2 = wx.StaticLine(self.panel_1, wx.ID_ANY)
-        sizer_1.Add(static_line_2, 0, wx.EXPAND, 0)
+        static_line_5 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_5, 0, wx.ALL | wx.EXPAND, 1)
 
         self.checkbox_removeD = wx.CheckBox(self.panel_1, wx.ID_ANY, "Remove D Files")
         self.checkbox_removeD.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
@@ -477,6 +438,34 @@ class MyFrame(wx.Frame):
         self.button_createkml.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         sizer_1.Add(self.button_createkml, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
 
+        static_line_6 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_6, 0, wx.EXPAND, 0)
+
+        static_line_3 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_3, 0, wx.EXPAND, 0)
+
+        label_1 = wx.StaticText(self.panel_1, wx.ID_ANY, "File Rename Tools (due\nto incorrect system time)", style=wx.ALIGN_CENTER_HORIZONTAL)
+        label_1.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
+        sizer_1.Add(label_1, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        static_line_7 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_7, 0, wx.EXPAND, 0)
+
+        static_line_4 = wx.StaticLine(self.panel_1, wx.ID_ANY)
+        sizer_1.Add(static_line_4, 0, wx.EXPAND, 0)
+
+        self.button_dfilerename = wx.Button(self.panel_1, wx.ID_ANY, "Rename D Files")
+        self.button_dfilerename.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_dfilerename, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.button_renamedgps = wx.Button(self.panel_1, wx.ID_ANY, "Rename DGPS")
+        self.button_renamedgps.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_renamedgps, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
+        self.button_renamelalt = wx.Button(self.panel_1, wx.ID_ANY, "Rename LALT")
+        self.button_renamelalt.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        sizer_1.Add(self.button_renamelalt, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
+
         self.panel_1.SetSizer(sizer_1)
 
         self.Layout()
@@ -485,6 +474,9 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.bin_pressed, self.button_extractbin)
         self.Bind(wx.EVT_BUTTON, self.kst_pressed, self.button_createkst)
         self.Bind(wx.EVT_BUTTON, self.kml_pressed, self.button_createkml)
+        self.Bind(wx.EVT_BUTTON, self.rename_d_pressed, self.button_dfilerename)
+        self.Bind(wx.EVT_BUTTON, self.rename_dgps_pressed, self.button_renamedgps)
+        self.Bind(wx.EVT_BUTTON, self.rename_lalt_pressed, self.button_renamelalt)
         # end wxGlade
 
     def vtem_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
@@ -496,50 +488,45 @@ class MyFrame(wx.Frame):
         event.Skip()
 
     def bin_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        # print("Event handler 'bin_pressed' not implemented!")
-        # app = wx.App(None)
-        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-        dialog = wx.FileDialog(None, 'Open', wildcard='*.bin', style=style)
-        if dialog.ShowModal() == wx.ID_OK:
-            path = dialog.GetPath()
-        else:
-            path = None
-        geotech.bin_extract(path)
-        print("Done!!!")
+        path = MyFileDialog(None, wildcard='*.bin')
+        file = path.EventHandler.Paths
+        geotech.bin_extract(file[0])
+        print("Bin extraction done!!!")
         event.Skip()
 
     def kst_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        # print("Event handler 'kst_pressed' not implemented!")
-        # path = get_file("*.csv")
-        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-        dialog = wx.FileDialog(None, 'Open', wildcard='*.csv', style=style)
-        if dialog.ShowModal() == wx.ID_OK:
-            path = dialog.GetPath()
-        else:
-            path = None
-        path = path.rsplit("\\", 1)[0]
+        path = MyFileDialog(None, wildcard='*.csv')
+        file = path.EventHandler.Paths
         current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
-        geotech.create_kst_xml(path, current_path)
-        # path = os.path
-        # file_kst = get_file('*.csv')
-        # file_kst = path + '\\' + file_kst
-        # create_kst_xml(file_kst)
+        geotech.create_kst_xml(file[0], current_path)
+        print("KST template created")
         event.Skip()
 
     def kml_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        # print("Event handler 'kml_pressed' not implemented!")
-        # path = get_file("*.csv")
-        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-        dialog = wx.FileDialog(None, 'Open', wildcard='*.csv', style=style)
-        if dialog.ShowModal() == wx.ID_OK:
-            path = dialog.GetPath()
-        else:
-            path = None
-        path = path.rsplit("\\", 1)[0]
-        geotech.create_kml(path)
-        print('help!')
-        # file_kml = get_file("*.csv")
-        # create_kml(file_kml)
+        path = MyFileDialog(None, wildcard='*.csv')
+        file = path.EventHandler.Paths
+        # path = path.rsplit("\\", 1)[0]
+        geotech.create_kml(file[0])
+        print("KML file created")
+        event.Skip()
+
+    def rename_d_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        path = MyFileDialog(None, wildcard='*.d')
+        files = path.EventHandler.Paths
+        geotech.dfile_rename_gps(files)
+        print("D-Files renamed")
+        event.Skip()
+
+    def rename_dgps_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        path = MyFileDialog(None, wildcard='A*.log')
+        files = path.EventHandler.Paths
+        geotech.gpsfile_rename_gps(files)
+        print("GPS files renamed!")
+        event.Skip()
+
+    def rename_lalt_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        print("Not implemented yet!")
+        # print(file)
         event.Skip()
 
 
@@ -550,6 +537,18 @@ class MyApp(wx.App):
         self.SetTopWindow(self.frame)
         self.frame.Show()
         return True
+
+
+class MyFileDialog(wx.FileDialog):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: MyFileDialog.__init__
+        # kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
+        kwds["style"] = kwds.get("style", 0) | wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
+        wx.FileDialog.__init__(self, *args, **kwds)
+        self.SetTitle("dialog")
+
+        self.ShowModal()
+# end of class MyFileDialog
 
 
 # end of class MyApp
