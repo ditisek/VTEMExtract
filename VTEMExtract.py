@@ -16,6 +16,7 @@
 # v1.2 - Add GUI with checkbox
 # v1.3 - Add Gyro extraction
 # v1.4 - Port GUI to wx
+# v1.5 - Add File rename to gps date functions
 
 import os
 import csv
