@@ -17,6 +17,7 @@
 # v1.3 - Add Gyro extraction
 # v1.4 - Port GUI to wx
 # v1.5 - Add File rename to gps date functions
+# v1.6 - Add laser merge with data
 
 import os
 import csv
