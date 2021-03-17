@@ -46,7 +46,8 @@ def vtem_extract(d, kst, kml):
     # file_names = get_file.get_file()
     style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
     # dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
-    dialog = wx.FileDialog(None, 'Open', wildcard='*.d', style=style | wx.FD_MULTIPLE)
+    dialog = wx.FileDialog(None, 'Open', wildcard='*.d',
+                           style=style | wx.FD_MULTIPLE)
     if dialog.ShowModal() == wx.ID_OK:
         # path = dialog.GetPath()
         path = dialog.GetPaths()
@@ -315,16 +316,21 @@ def vtem_extract(d, kst, kml):
                                        crate + ',' + gyro1 + ',' + gyro2 + ',' +
                                        gyro3 + '\n')
                         elif chsel == "4":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' + lon + ',' + height + ',' +
-                                       nosats + ',' + ralt + ',' + pkir + ',' + pkbx + ',' +
-                                       pkby + ',' + pkbz + ',' + pkvr + ',' + pksx + ',' + pksy + ',' +
-                                       pksz + ',' + srz15 + ',' + srz24 + ',' + srz33 + ',' +
-                                       srz44 + ',' + brz15 + ',' + brz24 + ',' + brz33 + ',' +
-                                       brz44 + ',' + srx15 + ',' + srx24 + ',' + srx33 + ',' +
-                                       srx44 + ',' + sry15 + ',' + sry24 + ',' + sry33 + ',' +
-                                       sry44 + ',' + rf15 + ',' + rf24 + ',' + rf33 + ',' +
-                                       rf44 + ',' + pwl + ',' + mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' + gyro3 + '\n')
+                            fout.write(utc + ',' + lno + ',' + lat + ',' +
+                                       lon + ',' + height + ',' + nosats + ',' +
+                                       ralt + ',' + pkir + ',' + pkbx + ',' +
+                                       pkby + ',' + pkbz + ',' + pkvr + ',' +
+                                       pksx + ',' + pksy + ',' + pksz + ',' +
+                                       srz15 + ',' + srz24 + ',' + srz33 + ',' +
+                                       srz44 + ',' + brz15 + ',' + brz24 + ',' +
+                                       brz33 + ',' + brz44 + ',' + srx15 + ',' +
+                                       srx24 + ',' + srx33 + ',' + srx44 + ',' +
+                                       sry15 + ',' + sry24 + ',' + sry33 + ',' +
+                                       sry44 + ',' + rf15 + ',' + rf24 + ',' +
+                                       rf33 + ',' + rf44 + ',' + pwl + ',' +
+                                       mag1 + ',' + mag2 + ',' + speed + ',' +
+                                       crate + ',' + gyro1 + ',' + gyro2 + ',' +
+                                       gyro3 + '\n')
 
                 b += 1
 
@@ -512,9 +518,13 @@ class MyFrame(wx.Frame):
         event.Skip()
 
     def rename_d_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        from datetime import date
+        pc_date = date.today().strftime("%d.%m")
+        entered_date = MyTextEntryDialog(self, 'Flight date?', '',
+                                         pc_date).GetValue()
         path = MyFileDialog(None, wildcard='*.d')
         files = path.EventHandler.Paths
-        geotech.dfile_rename_gps(files)
+        geotech.dfile_rename_gps(files, entered_date)
         print("D-Files renamed")
         event.Skip()
 
@@ -526,7 +536,15 @@ class MyFrame(wx.Frame):
         event.Skip()
 
     def rename_lalt_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
-        print("Not implemented yet!")
+        from datetime import date
+        pc_date = date.today().strftime("%d_%m")
+        entered_date = MyTextEntryDialog(self, 'Flight date?', '',
+                                         pc_date).GetValue()
+        path = MyFileDialog(None, wildcard='*.log')
+        files = path.EventHandler.Paths
+        print(entered_date)
+        geotech.lalt_rename_gps(files, entered_date)
+        print("LALT files renamed!")
         # print(file)
         event.Skip()
 
@@ -547,6 +565,20 @@ class MyFileDialog(wx.FileDialog):
         kwds["style"] = kwds.get("style", 0) | wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
         wx.FileDialog.__init__(self, *args, **kwds)
         self.SetTitle("dialog")
+
+        self.ShowModal()
+# end of class MyFileDialog
+
+
+class MyTextEntryDialog(wx.TextEntryDialog):
+    def __init__(self, *args):
+        # begin wxGlade: MyFileDialog.__init__
+        # kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
+        # kwds["style"] = kwds.get("style", 0)
+        # wx.TextEntryDialog(self, message, caption=GetTextFromUserPromptStr,
+        #                 value="", style=TextEntryDialogStyle, pos=DefaultPosition)
+        wx.TextEntryDialog.__init__(self, *args)
+        self.SetTitle("date")
 
         self.ShowModal()
 # end of class MyFileDialog
