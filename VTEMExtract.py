@@ -18,6 +18,7 @@
 # v1.4 - Port GUI to wx
 # v1.5 - Add File rename to gps date functions
 # v1.6 - Add laser merge with data
+# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped
 
 import os
 import csv
