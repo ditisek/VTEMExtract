@@ -136,7 +136,7 @@ def vtem_extract(d, kst, kml):
         print(files_d[a])
 
         open(files_d[a], 'r')
-        readcsv = csv.reader(files_d[a])
+        # readcsv = csv.reader(files_d[a])
 
         print(a + 1)
 
@@ -144,6 +144,7 @@ def vtem_extract(d, kst, kml):
             readcsv = csv.reader(infile)
 
             for row in readcsv:
+                header.add(row[0])
                 total_lines += 1
 
                 if row[0].startswith('$TD_VZ'):
@@ -156,20 +157,19 @@ def vtem_extract(d, kst, kml):
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
                                         pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
                                         brz15+','+brz24+','+brz33+','+brz44+','+rf15+','+rf24+','+rf33+','+rf44+','+
-                                        pwl+','+mag1+','+mag2+','+speed+','+crate)
+                                        pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
                         elif chsel == "3":
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
                                         pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
                                         brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
-                                        mag1+','+mag2+','+speed+','+crate)
+                                        mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
                         elif chsel == "4":
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
                                         pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
                                         brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
-                                        rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate)
+                                        rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
 
                 elif row[0].startswith('$TDINFO'):
-                    # print 'tdinfo'
                     SamplR = str(row[1])
                     Chan = str(row[2])
                     loopd = str(row[3])
@@ -178,7 +178,6 @@ def vtem_extract(d, kst, kml):
                     sn = str(row[10])
 
                 elif row[0].startswith('$TDTDEM'):
-                    # print 'tdtdem'
                     Ver = str(row[1])
                     basef = str(row[2])
                     dc = str(row[3])
@@ -255,6 +254,12 @@ def vtem_extract(d, kst, kml):
                     if len(row) > 2:
                         mag1 = str(row[1].strip())
 
+                elif row[0].startswith('$GYRO'):
+                    if len(row) > 3:
+                        gyro1 = str(row[1].strip())
+                        gyro2 = str(row[2].strip())
+                        gyro3 = str(row[3].strip())
+
                 elif row[0].startswith('$GPGGA'):
                     if row[1] != '' and len(row) == 15:
                         utc = str(row[1])
@@ -299,13 +304,7 @@ def vtem_extract(d, kst, kml):
 
                 b += 1
 
-            # print("{} lines read".format(b))
-
-            # fout.close()
-
         # total_lines += b
-
-    print("Total lines read: {}".format(total_lines))
 
     for line in data:
         fout.write(line)
