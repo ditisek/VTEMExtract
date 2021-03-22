@@ -44,12 +44,10 @@ def distance(lat1, lng1, lat2, lng2):
 
 
 def vtem_extract(d, kst, kml):
-    # file_names = get_file.get_file()
     style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
     # dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
     dialog = wx.FileDialog(None, 'Open', wildcard='*.d', style=style | wx.FD_MULTIPLE)
     if dialog.ShowModal() == wx.ID_OK:
-        # path = dialog.GetPath()
         path = dialog.GetPaths()
     else:
         path = None
@@ -104,7 +102,6 @@ def vtem_extract(d, kst, kml):
     print('No files selected : ' + str(len(files_d)))
 
     open(files_d[0], 'r')
-    # readcsv = csv.reader(files_d[0])
     with open(files_d[0], 'r') as infile:
         readcsv = csv.reader(infile)
         for row in readcsv:
@@ -112,6 +109,9 @@ def vtem_extract(d, kst, kml):
                 chsel = str(row[2])
             elif row[0].startswith('$TDTDEM'):
                 nomagssel = str(row[11])
+                noch = str(row[5])
+
+    data = []
 
     fnameout = path + '\VTEMExtracted.csv'
     fout = open(fnameout, 'w')
@@ -136,8 +136,7 @@ def vtem_extract(d, kst, kml):
         print(files_d[a])
 
         open(files_d[a], 'r')
-
-        fout = open(fnameout, 'a')
+        readcsv = csv.reader(files_d[a])
 
         print(a + 1)
 
@@ -145,9 +144,31 @@ def vtem_extract(d, kst, kml):
             readcsv = csv.reader(infile)
 
             for row in readcsv:
-                header.add(row[0])
                 total_lines += 1
-                if row[0].startswith('$TDINFO'):
+
+                if row[0].startswith('$TD_VZ'):
+                    if (len(row) > 45) and (row[15] != "nan"):
+                        srz15 = str(row[15])
+                        srz24 = str(row[24])
+                        srz33 = str(row[33])
+                        srz44 = str(row[44])
+                        if chsel == "2":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
+                                        pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
+                                        brz15+','+brz24+','+brz33+','+brz44+','+rf15+','+rf24+','+rf33+','+rf44+','+
+                                        pwl+','+mag1+','+mag2+','+speed+','+crate)
+                        elif chsel == "3":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
+                                        pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
+                                        mag1+','+mag2+','+speed+','+crate)
+                        elif chsel == "4":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
+                                        pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
+                                        rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate)
+
+                elif row[0].startswith('$TDINFO'):
                     # print 'tdinfo'
                     SamplR = str(row[1])
                     Chan = str(row[2])
@@ -189,13 +210,6 @@ def vtem_extract(d, kst, kml):
                             pkbx = str(row[3])
                         if int(noch) == 4:
                             pkby = str(row[4])
-
-                elif row[0].startswith('$TD_VZ'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        srz15 = str(row[15])
-                        srz24 = str(row[24])
-                        srz33 = str(row[33])
-                        srz44 = str(row[44])
 
                 elif row[0].startswith('$TD_BZ'):
                     if (len(row) > 45) and (row[15] != "nan"):
@@ -241,12 +255,6 @@ def vtem_extract(d, kst, kml):
                     if len(row) > 2:
                         mag1 = str(row[1].strip())
 
-                elif row[0].startswith('$GYRO'):
-                    if len(row) > 3:
-                        gyro1 = str(row[1].strip())
-                        gyro2 = str(row[2].strip())
-                        gyro3 = str(row[3].strip())
-
                 elif row[0].startswith('$GPGGA'):
                     if row[1] != '' and len(row) == 15:
                         utc = str(row[1])
@@ -289,47 +297,21 @@ def vtem_extract(d, kst, kml):
                         lat1 = float(lat)
                         lon1 = float(lon)
 
-                        if chsel == "2":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' +
-                                       lon + ',' + height + ',' + nosats + ',' +
-                                       ralt + ',' + pkir + ',' + pkbz + ',' +
-                                       pkvr + ',' + pksz + ',' + srz15 + ',' +
-                                       srz24 + ',' + srz33 + ',' + srz44 + ',' +
-                                       brz15 + ',' + brz24 + ',' + brz33 + ',' +
-                                       brz44 + ',' + rf15 + ',' + rf24 + ',' +
-                                       rf33 + ',' + rf44 + ',' + pwl + ',' +
-                                       mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' +
-                                       gyro3 + '\n')
-                        elif chsel == "3":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' +
-                                       lon + ',' + height + ',' + nosats + ',' +
-                                       ralt + ',' + pkir + ',' + pkbx + ',' +
-                                       pkbz + ',' + pkvr + ',' + pksx + ',' +
-                                       pksz + ',' + srz15 + ',' + srz24 + ',' +
-                                       srz33 + ',' + srz44 + ',' + brz15 + ',' +
-                                       brz24 + ',' + brz33 + ',' + brz44 + ',' +
-                                       srx15 + ',' + srx24 + ',' + srx33 + ',' +
-                                       srx44 + ',' + rf15 + ',' + rf24 + ',' +
-                                       rf33 + ',' + rf44 + ',' + pwl + ',' +
-                                       mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' +
-                                       gyro3 + '\n')
-                        elif chsel == "4":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' + lon + ',' + height + ',' +
-                                       nosats + ',' + ralt + ',' + pkir + ',' + pkbx + ',' +
-                                       pkby + ',' + pkbz + ',' + pkvr + ',' + pksx + ',' + pksy + ',' +
-                                       pksz + ',' + srz15 + ',' + srz24 + ',' + srz33 + ',' +
-                                       srz44 + ',' + brz15 + ',' + brz24 + ',' + brz33 + ',' +
-                                       brz44 + ',' + srx15 + ',' + srx24 + ',' + srx33 + ',' +
-                                       srx44 + ',' + sry15 + ',' + sry24 + ',' + sry33 + ',' +
-                                       sry44 + ',' + rf15 + ',' + rf24 + ',' + rf33 + ',' +
-                                       rf44 + ',' + pwl + ',' + mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' + gyro3 + '\n')
-
                 b += 1
 
-            fout.close()
+            # print("{} lines read".format(b))
+
+            # fout.close()
+
+        # total_lines += b
+
+    print("Total lines read: {}".format(total_lines))
+
+    for line in data:
+        fout.write(line)
+        fout.write('\n')
+
+    fout.close()
 
     print("Total lines read: {}".format(total_lines))
     print(f"{len(header)} headers:")
