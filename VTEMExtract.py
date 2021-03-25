@@ -149,10 +149,10 @@ def vtem_extract(d, kst, kml):
 
                 if row[0].startswith('$TD_VZ'):
                     if (len(row) > 45) and (row[15] != "nan"):
-                        srz15 = str(row[15])
-                        srz24 = str(row[24])
-                        srz33 = str(row[33])
-                        srz44 = str(row[44])
+                        srz15 = str(float(row[17]) / 10)
+                        srz24 = str(float(row[26]) / 10)
+                        srz33 = str(float(row[35]) / 10)
+                        srz44 = str(float(row[46]) / 10)
                         if chsel == "2":
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
                                         pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
@@ -212,31 +212,31 @@ def vtem_extract(d, kst, kml):
 
                 elif row[0].startswith('$TD_BZ'):
                     if (len(row) > 45) and (row[15] != "nan"):
-                        brz15 = str(row[15])
-                        brz24 = str(row[24])
-                        brz33 = str(row[33])
-                        brz44 = str(row[44])
+                        brz15 = str(float(row[17]) / 20)
+                        brz24 = str(float(row[26]) / 20)
+                        brz33 = str(float(row[35]) / 20)
+                        brz44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_VX'):
                     if (len(row) > 45) and (row[15] != "nan"):
-                        srx15 = str(row[15])
-                        srx24 = str(row[24])
-                        srx33 = str(row[33])
-                        srx44 = str(row[44])
+                        srx15 = str(float(row[17]) / 20)
+                        srx24 = str(float(row[26]) / 20)
+                        srx33 = str(float(row[35]) / 20)
+                        srx44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_VY'):
                     if (len(row) > 45) and (row[15] != "nan"):
-                        sry15 = row[15]
-                        sry24 = row[24]
-                        sry33 = row[33]
-                        sry44 = row[44]
+                        sry15 = str(float(row[17]) / 20)
+                        sry24 = str(float(row[26]) / 20)
+                        sry33 = str(float(row[35]) / 20)
+                        sry44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_RF'):
                     if (len(row) > 45) and (row[15] != "nan"):
-                        rf15 = str(row[15])
-                        rf24 = str(row[24])
-                        rf33 = str(row[33])
-                        rf44 = str(row[44])
+                        rf15 = str(row[17])
+                        rf24 = str(row[26])
+                        rf33 = str(row[35])
+                        rf44 = str(row[46])
 
                 elif row[0].startswith('$PWL'):
                     pwl = str(row[1])
