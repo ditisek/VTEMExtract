@@ -18,7 +18,8 @@
 # v1.4 - Port GUI to wx
 # v1.5 - Add File rename to gps date functions
 # v1.6 - Add laser merge with data
-# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped
+# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped.
+#       Add X B-Field
 
 import os
 import csv
@@ -81,6 +82,10 @@ def vtem_extract(d, kst, kml):
     srx24 = '0'
     srx33 = '0'
     srx44 = '0'
+    brx15 = '0'
+    brx24 = '0'
+    brx33 = '0'
+    brx44 = '0'
     sry15 = '0'
     sry24 = '0'
     sry33 = '0'
@@ -131,12 +136,14 @@ def vtem_extract(d, kst, kml):
     elif chsel == "3":
         fout.write('UTC,lno,lat,lon,height,nosats,ralt,pkir,pkbx,pkbz,'
                    'pkvr,pksx,pksz,srz15,srz24,srz33,srz44,brz15,brz24,brz33,'
-                   'brz44,srx15,srx24,srx33,srx44,rf15,rf24,rf33,rf44,pwline,'
+                   'brz44,srx15,srx24,srx33,srx44,brx15,brx24,brx33,'
+                   'brx44,rf15,rf24,rf33,rf44,pwline,'
                    'mag1,mag2,speed,climbrate,gyro1,gyro2,gyro3\n')
     elif chsel == "4":
         fout.write('UTC,lno,lat,lon,height,nosats,ralt,pkir,pkbx,pkby,pkbz,'
                    'pkvr,pksx,pksy,pksz,srz15,srz24,srz33,srz44,brz15,brz24,'
-                   'brz33,brz44,srx15,srx24,srx33,srx44,sry15,sry24,sry33,'
+                   'brz33,brz44,srx15,srx24,srx33,srx44,brx15,brx24,brx33,'
+                   'brx44,sry15,sry24,sry33,'
                    'sry44,rf15,rf24,rf33,rf44,pwline,mag1,mag2,speed,climbrate,'
                    'gyro1,gyro2,gyro3\n')
 
@@ -169,12 +176,14 @@ def vtem_extract(d, kst, kml):
                         elif chsel == "3":
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
                                         pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
-                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                        brx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
                                         mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
                         elif chsel == "4":
                             data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
                                         pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
-                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                        brx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
                                         rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
 
                 elif row[0].startswith('$TDINFO'):
@@ -231,6 +240,13 @@ def vtem_extract(d, kst, kml):
                         srx24 = str(float(row[26]) / 20)
                         srx33 = str(float(row[35]) / 20)
                         srx44 = str(float(row[46]) / 20)
+
+                elif row[0].startswith('$TD_BX'):
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        brx15 = str(float(row[17]) / 20)
+                        brx24 = str(float(row[26]) / 20)
+                        brx33 = str(float(row[35]) / 20)
+                        brx44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_VY'):
                     if (len(row) > 46) and (row[15] != "nan"):
