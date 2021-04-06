@@ -55,6 +55,11 @@ def vtem_extract(d, kst, kml):
     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
     lno = '0'
     ralt = '0'
+    utc = '0'
+    lat = '0'
+    lon = '0'
+    height = '0'
+    nosats = '0'
     pkir = '0'
     pkbz = '0'
     pkbx = '0'
@@ -62,6 +67,7 @@ def vtem_extract(d, kst, kml):
     pkvr = '0'
     pksz = '0'
     pksx = '0'
+    pksy = '0'
     b = 0
     srz15 = '0'
     srz24 = '0'
@@ -89,6 +95,8 @@ def vtem_extract(d, kst, kml):
     lat1 = 0
     lon1 = 0
     height1 = '0'
+    speed = '0'
+    crate = '0'
     total_lines = 0
     gyro1 = '0'
     gyro2 = '0'
@@ -148,7 +156,7 @@ def vtem_extract(d, kst, kml):
                 total_lines += 1
 
                 if row[0].startswith('$TD_VZ'):
-                    if (len(row) > 45) and (row[15] != "nan"):
+                    if (len(row) > 46) and (row[15] != "nan"):
                         srz15 = str(float(row[17]) / 10)
                         srz24 = str(float(row[26]) / 10)
                         srz33 = str(float(row[35]) / 10)
@@ -211,28 +219,28 @@ def vtem_extract(d, kst, kml):
                             pkby = str(row[4])
 
                 elif row[0].startswith('$TD_BZ'):
-                    if (len(row) > 45) and (row[15] != "nan"):
+                    if (len(row) > 46) and (row[15] != "nan"):
                         brz15 = str(float(row[17]) / 20)
                         brz24 = str(float(row[26]) / 20)
                         brz33 = str(float(row[35]) / 20)
                         brz44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_VX'):
-                    if (len(row) > 45) and (row[15] != "nan"):
+                    if (len(row) > 46) and (row[15] != "nan"):
                         srx15 = str(float(row[17]) / 20)
                         srx24 = str(float(row[26]) / 20)
                         srx33 = str(float(row[35]) / 20)
                         srx44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_VY'):
-                    if (len(row) > 45) and (row[15] != "nan"):
+                    if (len(row) > 46) and (row[15] != "nan"):
                         sry15 = str(float(row[17]) / 20)
                         sry24 = str(float(row[26]) / 20)
                         sry33 = str(float(row[35]) / 20)
                         sry44 = str(float(row[46]) / 20)
 
                 elif row[0].startswith('$TD_RF'):
-                    if (len(row) > 45) and (row[15] != "nan"):
+                    if (len(row) > 46) and (row[15] != "nan"):
                         rf15 = str(row[17])
                         rf24 = str(row[26])
                         rf33 = str(row[35])
