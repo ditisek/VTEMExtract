@@ -18,14 +18,15 @@
 # v1.4 - Port GUI to wx
 # v1.5 - Add File rename to gps date functions
 # v1.6 - Add laser merge with data
-# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped.
-#       Add X B-Field. Change kml to reflect lines
+# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped. Add X B-Field.
+# v1.8 - Add date to sysinfo.txt. Change kml to reflect lines
 
 import os
 import csv
 import math
 import geotech
 import wx
+import time
 
 
 def distance(lat1, lng1, lat2, lng2):
@@ -107,6 +108,8 @@ def vtem_extract(d, kst, kml):
     gyro2 = '0'
     gyro3 = '0'
     header = set()
+    date = 0
+    time_file = 0
 
     files_d = file_names
 
@@ -149,6 +152,16 @@ def vtem_extract(d, kst, kml):
 
     for a in range(len(files_d)):
         print(files_d[a])
+
+        date_from_file = files_d[a].rsplit("\\", 1)[1][0:5]
+
+        if date != date_from_file:
+            date = files_d[a].rsplit("\\", 1)[1][0:5]
+            time_file = files_d[a].rsplit("\\", 1)[1].rsplit(" ")[1][0:5]
+            # year = os.path.getctime(files_d[a])
+            # year = time.strftime('%Y',
+            #                      time.localtime(os.path.getctime(files_d[a])))
+            year = time.strftime("%d.%m.%Y", time.localtime(os.path.getmtime(files_d[a])))
 
         open(files_d[a], 'r')
         # readcsv = csv.reader(files_d[a])
@@ -341,29 +354,32 @@ def vtem_extract(d, kst, kml):
     for item in header:
         print(item)
 
-    fnameout = path + '\sysinfo.txt'
+    # fnameout = path + '\sysinfo.txt'
+    fnameout = path + '\sysinfo_VTEM' + sn + '_' + year + '.txt'
     fout = open(fnameout, 'w')
 
     l = '-' * 22
 
-    print('{0}\n System Information :\n{0}\nSample Rate :\t\t{1:>6}\n'
-          'No of Channels :\t{2:>6}\nSoftware Version :\t{3:>6}\n'
-          'Loop diameter :\t\t{4:>6}\nSystem Type :\t\t{5:>6}\n'
-          'Serial No :\t\t{6:>6}\nSystem Gain :\t\t{7:>6}\n'
-          'Base Frequency :\t{8:>6}\nDuty Cycle :\t\t{9:>6}\n'
-          'Voltage :\t\t{10:>6}\nNo Mags :\t\t{11:>6}\n'
-          'Power Monitor :\t\t{12:>6}\n'
-          .format(l, SamplR, Chan, Ver, loopd, stype, sn, gain, basef,
-                  dc, volt, nomags, pmon))
-    fout.write('{0}\n System Information :\n{0:>6}\nSample Rate :\t\t{1:>6}\n'
-               'No of Channels :\t{2:>6}\nSoftware Version :\t{3:>6}\n'
-               'Loop diameter :\t\t{4:>6}\nSystem Type :\t\t{5:>6}\n'
-               'Serial No :\t\t{6:>6}\nSystem Gain :\t\t{7:>6}\n'
-               'Base Frequency :\t{8:>6}\nDuty Cycle :\t\t{9:>6}\n'
-               'Voltage :\t\t{10:>6}\nNo Mags :\t\t{11:>6}\n'
-               'Power Monitor :\t\t{12:>6}\n'
-               .format(l, SamplR, Chan, Ver, loopd, stype, sn, gain, basef,
-                       dc, volt, nomags, pmon))
+    print('{0}\n System Information :\n{0}\nDate :\t\t\t{1:>10}\n'
+          'Time :\t\t\t\t{2:>6}\nSample Rate :\t\t{3:>6}\n'
+          'No of Channels :\t{4:>6}\nSoftware Version :\t{5:>6}\n'
+          'Loop diameter :\t\t{6:>6}\nSystem Type :\t\t{7:>6}\n'
+          'Serial No :\t\t\t{8:>6}\nSystem Gain :\t\t{9:>6}\n'
+          'Base Frequency :\t{10:>6}\nDuty Cycle :\t\t{11:>6}\n'
+          'Voltage :\t\t\t{12:>6}\nNo Mags :\t\t\t{13:>6}\n'
+          'Power Monitor :\t\t{14:>6}\n'
+          .format(l, year, time_file, SamplR, Chan, Ver, loopd, stype, sn, gain,
+                  basef, dc, volt, nomags, pmon))
+    fout.write('{0}\n System Information :\n{0}\nDate :\t\t\t{1:>10}\n'
+               'Time :\t\t\t\t{2:>6}\nSample Rate :\t\t{3:>6}\n'
+               'No of Channels :\t{4:>6}\nSoftware Version :\t{5:>6}\n'
+               'Loop diameter :\t\t{6:>6}\nSystem Type :\t\t{7:>6}\n'
+               'Serial No :\t\t\t{8:>6}\nSystem Gain :\t\t{9:>6}\n'
+               'Base Frequency :\t{10:>6}\nDuty Cycle :\t\t{11:>6}\n'
+               'Voltage :\t\t\t{12:>6}\nNo Mags :\t\t\t{13:>6}\n'
+               'Power Monitor :\t\t{14:>6}\n'
+               .format(l, year, time_file, SamplR, Chan, Ver, loopd, stype, sn, gain,
+                       basef, dc, volt, nomags, pmon))
 
     fout.close()
 
@@ -393,7 +409,7 @@ class MyFrame(wx.Frame):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((291, 507))
+        self.SetSize((291, 565))
         self.SetTitle("Extract by David")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -428,12 +444,12 @@ class MyFrame(wx.Frame):
         sizer_1.Add(self.checkbox_createkml, 0, wx.ALL, 2)
 
         self.button_vtemextract = wx.Button(self.panel_1, wx.ID_ANY, "Extract VTEM data")
-        self.button_vtemextract.SetMinSize((140, 25))
+        self.button_vtemextract.SetMinSize((160, 25))
         self.button_vtemextract.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         sizer_1.Add(self.button_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
 
         self.button_extractbin = wx.Button(self.panel_1, wx.ID_ANY, "Extract BIN file")
-        self.button_extractbin.SetMinSize((120, 25))
+        self.button_extractbin.SetMinSize((130, 25))
         self.button_extractbin.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         sizer_1.Add(self.button_extractbin, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
 
