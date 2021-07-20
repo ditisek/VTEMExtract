@@ -544,9 +544,13 @@ class MyFrame(wx.Frame):
         event.Skip()
 
     def rename_d_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        from datetime import date
+        pc_date = date.today().strftime("%d.%m")
+        entered_date = MyTextEntryDialog(self, 'Flight date?', '',
+                                         pc_date).GetValue()
         path = MyFileDialog(None, wildcard='*.d')
         files = path.EventHandler.Paths
-        geotech.dfile_rename_gps(files)
+        geotech.dfile_rename_gps(files, entered_date)
         print("D-Files renamed")
         event.Skip()
 
@@ -582,6 +586,20 @@ class MyFileDialog(wx.FileDialog):
 
         self.ShowModal()
 # end of class MyFileDialog
+
+
+class MyTextEntryDialog(wx.TextEntryDialog):
+    def __init__(self, *args):
+        # begin wxGlade: MyFileDialog.__init__
+        # kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
+        # kwds["style"] = kwds.get("style", 0)
+        # wx.TextEntryDialog(self, message, caption=GetTextFromUserPromptStr,
+        #                 value="", style=TextEntryDialogStyle, pos=DefaultPosition)
+        wx.TextEntryDialog.__init__(self, *args)
+        self.SetTitle("date")
+
+        self.ShowModal()
+# end of class MyTextEntryDialog
 
 
 # end of class MyApp
