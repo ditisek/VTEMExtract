@@ -298,7 +298,8 @@ def vtem_extract(d, kst, kml):
                         gyro3 = str(row[3].strip())
 
                 elif row[0].startswith('$GPGGA'):
-                    if row[1] != '' and len(row) == 15:
+                    if row[2] != '' and len(row) == 15:
+                        print(row)  # Print for troubleshooting
                         utc = str(row[1])
                         lati = row[2]
                         lat_directioni = row[3]
@@ -307,7 +308,13 @@ def vtem_extract(d, kst, kml):
                         nosats = str(row[7])
                         height = str(row[9])
 
-                        crate = (float(height) - float(height1)) * 1000
+                        
+                        print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
+                        print(type(height))
+                        try:
+                            crate = (float(height) - float(height1)) * 1000
+                        except:
+                            crate = 0
                         if crate > 5000 or crate < -5000:
                             crate = "0"
                         crate = str(crate)
@@ -332,8 +339,11 @@ def vtem_extract(d, kst, kml):
                         lon = str(loni)
 
                         # speed conversion
-                        speed = str(distance(float(lat), float(lon),
-                                             lat1, lon1) / 0.1)
+                        try:
+                            speed = str(distance(float(lat), float(lon),
+                                                 lat1, lon1) / 0.1)
+                        except:
+                            speed = 0
                         if float(speed) > 200 or float(speed) < -200:
                             speed = "0"
                         lat1 = float(lat)
