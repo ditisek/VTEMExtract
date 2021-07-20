@@ -299,7 +299,7 @@ def vtem_extract(d, kst, kml):
 
                 elif row[0].startswith('$GPGGA'):
                     if row[2] != '' and len(row) == 15:
-                        print(row)  # Print for troubleshooting
+                        # print(row)  # Print for troubleshooting
                         utc = str(row[1])
                         lati = row[2]
                         lat_directioni = row[3]
@@ -309,8 +309,8 @@ def vtem_extract(d, kst, kml):
                         height = str(row[9])
 
                         
-                        print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
-                        print(type(height))
+                        # print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
+                        # print(type(height))
                         try:
                             crate = (float(height) - float(height1)) * 1000
                         except:
