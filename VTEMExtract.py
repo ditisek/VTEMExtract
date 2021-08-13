@@ -242,31 +242,31 @@ def vtem_extract(d, kst, kml):
 
                 elif row[0].startswith('$TD_BZ'):
                     if (len(row) > 46) and (row[15] != "nan"):
-                        brz15 = str(float(row[17]) / 20)
-                        brz24 = str(float(row[26]) / 20)
-                        brz33 = str(float(row[35]) / 20)
-                        brz44 = str(float(row[46]) / 20)
+                        brz15 = str(float(row[17]) / 10)
+                        brz24 = str(float(row[26]) / 10)
+                        brz33 = str(float(row[35]) / 10)
+                        brz44 = str(float(row[46]) / 10)
 
                 elif row[0].startswith('$TD_VX'):
                     if (len(row) > 46) and (row[15] != "nan"):
-                        srx15 = str(float(row[17]) / 20)
-                        srx24 = str(float(row[26]) / 20)
-                        srx33 = str(float(row[35]) / 20)
-                        srx44 = str(float(row[46]) / 20)
+                        srx15 = str(float(row[17]) / 2)
+                        srx24 = str(float(row[26]) / 2)
+                        srx33 = str(float(row[35]) / 2)
+                        srx44 = str(float(row[46]) / 2)
 
                 elif row[0].startswith('$TD_BX'):
                     if (len(row) > 46) and (row[15] != "nan"):
-                        brx15 = str(float(row[17]) / 20)
-                        brx24 = str(float(row[26]) / 20)
-                        brx33 = str(float(row[35]) / 20)
-                        brx44 = str(float(row[46]) / 20)
+                        brx15 = str(float(row[17]) / 2)
+                        brx24 = str(float(row[26]) / 2)
+                        brx33 = str(float(row[35]) / 2)
+                        brx44 = str(float(row[46]) / 2)
 
                 elif row[0].startswith('$TD_VY'):
                     if (len(row) > 46) and (row[15] != "nan"):
-                        sry15 = str(float(row[17]) / 20)
-                        sry24 = str(float(row[26]) / 20)
-                        sry33 = str(float(row[35]) / 20)
-                        sry44 = str(float(row[46]) / 20)
+                        sry15 = str(float(row[17]) / 2)
+                        sry24 = str(float(row[26]) / 2)
+                        sry33 = str(float(row[35]) / 2)
+                        sry44 = str(float(row[46]) / 2)
 
                 elif row[0].startswith('$TD_RF'):
                     if (len(row) > 46) and (row[15] != "nan"):
@@ -298,56 +298,57 @@ def vtem_extract(d, kst, kml):
                         gyro3 = str(row[3].strip())
 
                 elif row[0].startswith('$GPGGA'):
-                    if row[2] != '' and len(row) == 15:
-                        # print(row)  # Print for troubleshooting
-                        utc = str(row[1])
-                        lati = row[2]
-                        lat_directioni = row[3]
-                        loni = row[4]
-                        lon_directioni = row[5]
-                        nosats = str(row[7])
-                        height = str(row[9])
+                    if len(row) > 2:
+                        if row[2] != '' and len(row) == 15:
+                            # print(row)  # Print for troubleshooting
+                            utc = str(row[1])
+                            lati = row[2]
+                            lat_directioni = row[3]
+                            loni = row[4]
+                            lon_directioni = row[5]
+                            nosats = str(row[7])
+                            height = str(row[9])
 
-                        
-                        # print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
-                        # print(type(height))
-                        try:
-                            crate = (float(height) - float(height1)) * 1000
-                        except:
-                            crate = 0
-                        if crate > 5000 or crate < -5000:
-                            crate = "0"
-                        crate = str(crate)
 
-                        height1 = height
+                            # print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
+                            # print(type(height))
+                            try:
+                                crate = (float(height) - float(height1)) * 1000
+                            except:
+                                crate = 0
+                            if crate > 5000 or crate < -5000:
+                                crate = "0"
+                            crate = str(crate)
 
-                        # convert latitude
-                        if lati.strip():
-                            lati = round(math.floor(float(lati) / 100)
-                                         + (float(lati) % 100) / 60, 6)
-                            if lat_directioni == 'S':
-                                lati = lati * -1
+                            height1 = height
 
-                        # convert logitude
-                        if loni.strip():
-                            loni = round(math.floor(float(loni) / 100)
-                                         + (float(loni) % 100) / 60, 6)
-                            if lon_directioni == 'W':
-                                loni = loni * -1
+                            # convert latitude
+                            if lati.strip():
+                                lati = round(math.floor(float(lati) / 100)
+                                             + (float(lati) % 100) / 60, 6)
+                                if lat_directioni == 'S':
+                                    lati = lati * -1
 
-                        lat = str(lati)
-                        lon = str(loni)
+                            # convert logitude
+                            if loni.strip():
+                                loni = round(math.floor(float(loni) / 100)
+                                             + (float(loni) % 100) / 60, 6)
+                                if lon_directioni == 'W':
+                                    loni = loni * -1
 
-                        # speed conversion
-                        try:
-                            speed = str(distance(float(lat), float(lon),
-                                                 lat1, lon1) / 0.1)
-                        except:
-                            speed = 0
-                        if float(speed) > 200 or float(speed) < -200:
-                            speed = "0"
-                        lat1 = float(lat)
-                        lon1 = float(lon)
+                            lat = str(lati)
+                            lon = str(loni)
+
+                            # speed conversion
+                            try:
+                                speed = str(distance(float(lat), float(lon),
+                                                     lat1, lon1) / 0.1)
+                            except:
+                                speed = 0
+                            if float(speed) > 200 or float(speed) < -200:
+                                speed = "0"
+                            lat1 = float(lat)
+                            lon1 = float(lon)
 
                 b += 1
 
