@@ -18,13 +18,15 @@
 # v1.4 - Port GUI to wx
 # v1.5 - Add File rename to gps date functions
 # v1.6 - Add laser merge with data
-# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped
+# v1.7 - Sync data to $TD_VZ and not gps to correct data dropped. Add X B-Field.
+# v1.8 - Add date to sysinfo.txt. Change kml to reflect lines
 
 import os
 import csv
 import math
 import geotech
 import wx
+import time
 
 
 def distance(lat1, lng1, lat2, lng2):
@@ -44,12 +46,10 @@ def distance(lat1, lng1, lat2, lng2):
 
 
 def vtem_extract(d, kst, kml):
-    # file_names = get_file.get_file()
     style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
     # dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
     dialog = wx.FileDialog(None, 'Open', wildcard='*.d', style=style | wx.FD_MULTIPLE)
     if dialog.ShowModal() == wx.ID_OK:
-        # path = dialog.GetPath()
         path = dialog.GetPaths()
     else:
         path = None
@@ -57,6 +57,11 @@ def vtem_extract(d, kst, kml):
     current_path = os.path.realpath(__file__).rsplit("\\", 1)[0]
     lno = '0'
     ralt = '0'
+    utc = '0'
+    lat = '0'
+    lon = '0'
+    height = '0'
+    nosats = '0'
     pkir = '0'
     pkbz = '0'
     pkbx = '0'
@@ -64,6 +69,7 @@ def vtem_extract(d, kst, kml):
     pkvr = '0'
     pksz = '0'
     pksx = '0'
+    pksy = '0'
     b = 0
     srz15 = '0'
     srz24 = '0'
@@ -77,6 +83,10 @@ def vtem_extract(d, kst, kml):
     srx24 = '0'
     srx33 = '0'
     srx44 = '0'
+    brx15 = '0'
+    brx24 = '0'
+    brx33 = '0'
+    brx44 = '0'
     sry15 = '0'
     sry24 = '0'
     sry33 = '0'
@@ -91,11 +101,15 @@ def vtem_extract(d, kst, kml):
     lat1 = 0
     lon1 = 0
     height1 = '0'
+    speed = '0'
+    crate = '0'
     total_lines = 0
     gyro1 = '0'
     gyro2 = '0'
     gyro3 = '0'
     header = set()
+    date = 0
+    time_file = 0
 
     files_d = file_names
 
@@ -104,7 +118,6 @@ def vtem_extract(d, kst, kml):
     print('No files selected : ' + str(len(files_d)))
 
     open(files_d[0], 'r')
-    # readcsv = csv.reader(files_d[0])
     with open(files_d[0], 'r') as infile:
         readcsv = csv.reader(infile)
         for row in readcsv:
@@ -112,6 +125,9 @@ def vtem_extract(d, kst, kml):
                 chsel = str(row[2])
             elif row[0].startswith('$TDTDEM'):
                 nomagssel = str(row[11])
+                noch = str(row[5])
+
+    data = []
 
     fnameout = path + '\VTEMExtracted.csv'
     fout = open(fnameout, 'w')
@@ -123,21 +139,32 @@ def vtem_extract(d, kst, kml):
     elif chsel == "3":
         fout.write('UTC,lno,lat,lon,height,nosats,ralt,pkir,pkbx,pkbz,'
                    'pkvr,pksx,pksz,srz15,srz24,srz33,srz44,brz15,brz24,brz33,'
-                   'brz44,srx15,srx24,srx33,srx44,rf15,rf24,rf33,rf44,pwline,'
+                   'brz44,srx15,srx24,srx33,srx44,brx15,brx24,brx33,'
+                   'brx44,rf15,rf24,rf33,rf44,pwline,'
                    'mag1,mag2,speed,climbrate,gyro1,gyro2,gyro3\n')
     elif chsel == "4":
         fout.write('UTC,lno,lat,lon,height,nosats,ralt,pkir,pkbx,pkby,pkbz,'
                    'pkvr,pksx,pksy,pksz,srz15,srz24,srz33,srz44,brz15,brz24,'
-                   'brz33,brz44,srx15,srx24,srx33,srx44,sry15,sry24,sry33,'
+                   'brz33,brz44,srx15,srx24,srx33,srx44,brx15,brx24,brx33,'
+                   'brx44,sry15,sry24,sry33,'
                    'sry44,rf15,rf24,rf33,rf44,pwline,mag1,mag2,speed,climbrate,'
                    'gyro1,gyro2,gyro3\n')
 
     for a in range(len(files_d)):
         print(files_d[a])
 
-        open(files_d[a], 'r')
+        date_from_file = files_d[a].rsplit("\\", 1)[1][0:5]
 
-        fout = open(fnameout, 'a')
+        if date != date_from_file:
+            date = files_d[a].rsplit("\\", 1)[1][0:5]
+            time_file = files_d[a].rsplit("\\", 1)[1].rsplit(" ")[1][0:5]
+            # year = os.path.getctime(files_d[a])
+            # year = time.strftime('%Y',
+            #                      time.localtime(os.path.getctime(files_d[a])))
+            year = time.strftime("%d.%m.%Y", time.localtime(os.path.getmtime(files_d[a])))
+
+        open(files_d[a], 'r')
+        # readcsv = csv.reader(files_d[a])
 
         print(a + 1)
 
@@ -147,8 +174,32 @@ def vtem_extract(d, kst, kml):
             for row in readcsv:
                 header.add(row[0])
                 total_lines += 1
-                if row[0].startswith('$TDINFO'):
-                    # print 'tdinfo'
+
+                if row[0].startswith('$TD_VZ'):
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        srz15 = str(float(row[17]) / 10)
+                        srz24 = str(float(row[26]) / 10)
+                        srz33 = str(float(row[35]) / 10)
+                        srz44 = str(float(row[46]) / 10)
+                        if chsel == "2":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
+                                        pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
+                                        brz15+','+brz24+','+brz33+','+brz44+','+rf15+','+rf24+','+rf33+','+rf44+','+
+                                        pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+                        elif chsel == "3":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
+                                        pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                        brx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
+                                        mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+                        elif chsel == "4":
+                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
+                                        pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                        brx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
+                                        rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+
+                elif row[0].startswith('$TDINFO'):
                     SamplR = str(row[1])
                     Chan = str(row[2])
                     loopd = str(row[3])
@@ -157,7 +208,6 @@ def vtem_extract(d, kst, kml):
                     sn = str(row[10])
 
                 elif row[0].startswith('$TDTDEM'):
-                    # print 'tdtdem'
                     Ver = str(row[1])
                     basef = str(row[2])
                     dc = str(row[3])
@@ -190,40 +240,40 @@ def vtem_extract(d, kst, kml):
                         if int(noch) == 4:
                             pkby = str(row[4])
 
-                elif row[0].startswith('$TD_VZ'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        srz15 = str(row[15])
-                        srz24 = str(row[24])
-                        srz33 = str(row[33])
-                        srz44 = str(row[44])
-
                 elif row[0].startswith('$TD_BZ'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        brz15 = str(row[15])
-                        brz24 = str(row[24])
-                        brz33 = str(row[33])
-                        brz44 = str(row[44])
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        brz15 = str(float(row[17]) / 10)
+                        brz24 = str(float(row[26]) / 10)
+                        brz33 = str(float(row[35]) / 10)
+                        brz44 = str(float(row[46]) / 10)
 
                 elif row[0].startswith('$TD_VX'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        srx15 = str(row[15])
-                        srx24 = str(row[24])
-                        srx33 = str(row[33])
-                        srx44 = str(row[44])
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        srx15 = str(float(row[17]) / 2)
+                        srx24 = str(float(row[26]) / 2)
+                        srx33 = str(float(row[35]) / 2)
+                        srx44 = str(float(row[46]) / 2)
+
+                elif row[0].startswith('$TD_BX'):
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        brx15 = str(float(row[17]) / 2)
+                        brx24 = str(float(row[26]) / 2)
+                        brx33 = str(float(row[35]) / 2)
+                        brx44 = str(float(row[46]) / 2)
 
                 elif row[0].startswith('$TD_VY'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        sry15 = row[15]
-                        sry24 = row[24]
-                        sry33 = row[33]
-                        sry44 = row[44]
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        sry15 = str(float(row[17]) / 2)
+                        sry24 = str(float(row[26]) / 2)
+                        sry33 = str(float(row[35]) / 2)
+                        sry44 = str(float(row[46]) / 2)
 
                 elif row[0].startswith('$TD_RF'):
-                    if (len(row) > 45) and (row[15] != "nan"):
-                        rf15 = str(row[15])
-                        rf24 = str(row[24])
-                        rf33 = str(row[33])
-                        rf44 = str(row[44])
+                    if (len(row) > 46) and (row[15] != "nan"):
+                        rf15 = str(row[17])
+                        rf24 = str(row[26])
+                        rf33 = str(row[35])
+                        rf44 = str(row[46])
 
                 elif row[0].startswith('$PWL'):
                     pwl = str(row[1])
@@ -248,117 +298,99 @@ def vtem_extract(d, kst, kml):
                         gyro3 = str(row[3].strip())
 
                 elif row[0].startswith('$GPGGA'):
-                    if row[1] != '' and len(row) == 15:
-                        utc = str(row[1])
-                        lati = row[2]
-                        lat_directioni = row[3]
-                        loni = row[4]
-                        lon_directioni = row[5]
-                        nosats = str(row[7])
-                        height = str(row[9])
+                    if len(row) > 2:
+                        if row[2] != '' and len(row) == 15:
+                            # print(row)  # Print for troubleshooting
+                            utc = str(row[1])
+                            lati = row[2]
+                            lat_directioni = row[3]
+                            loni = row[4]
+                            lon_directioni = row[5]
+                            nosats = str(row[7])
+                            height = str(row[9])
 
-                        crate = (float(height) - float(height1)) * 1000
-                        if crate > 5000 or crate < -5000:
-                            crate = "0"
-                        crate = str(crate)
 
-                        height1 = height
+                            # print(f'Height: {height} Height1: {height1}')   # Print for troubleshooting
+                            # print(type(height))
+                            try:
+                                crate = (float(height) - float(height1)) * 1000
+                            except:
+                                crate = 0
+                            if crate > 5000 or crate < -5000:
+                                crate = "0"
+                            crate = str(crate)
 
-                        # convert latitude
-                        if lati.strip():
-                            lati = round(math.floor(float(lati) / 100)
-                                         + (float(lati) % 100) / 60, 6)
-                            if lat_directioni == 'S':
-                                lati = lati * -1
+                            height1 = height
 
-                        # convert logitude
-                        if loni.strip():
-                            loni = round(math.floor(float(loni) / 100)
-                                         + (float(loni) % 100) / 60, 6)
-                            if lon_directioni == 'W':
-                                loni = loni * -1
+                            # convert latitude
+                            if lati.strip():
+                                lati = round(math.floor(float(lati) / 100)
+                                             + (float(lati) % 100) / 60, 6)
+                                if lat_directioni == 'S':
+                                    lati = lati * -1
 
-                        lat = str(lati)
-                        lon = str(loni)
+                            # convert logitude
+                            if loni.strip():
+                                loni = round(math.floor(float(loni) / 100)
+                                             + (float(loni) % 100) / 60, 6)
+                                if lon_directioni == 'W':
+                                    loni = loni * -1
 
-                        # speed conversion
-                        speed = str(distance(float(lat), float(lon),
-                                             lat1, lon1) / 0.1)
-                        if float(speed) > 200 or float(speed) < -200:
-                            speed = "0"
-                        lat1 = float(lat)
-                        lon1 = float(lon)
+                            lat = str(lati)
+                            lon = str(loni)
 
-                        if chsel == "2":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' +
-                                       lon + ',' + height + ',' + nosats + ',' +
-                                       ralt + ',' + pkir + ',' + pkbz + ',' +
-                                       pkvr + ',' + pksz + ',' + srz15 + ',' +
-                                       srz24 + ',' + srz33 + ',' + srz44 + ',' +
-                                       brz15 + ',' + brz24 + ',' + brz33 + ',' +
-                                       brz44 + ',' + rf15 + ',' + rf24 + ',' +
-                                       rf33 + ',' + rf44 + ',' + pwl + ',' +
-                                       mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' +
-                                       gyro3 + '\n')
-                        elif chsel == "3":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' +
-                                       lon + ',' + height + ',' + nosats + ',' +
-                                       ralt + ',' + pkir + ',' + pkbx + ',' +
-                                       pkbz + ',' + pkvr + ',' + pksx + ',' +
-                                       pksz + ',' + srz15 + ',' + srz24 + ',' +
-                                       srz33 + ',' + srz44 + ',' + brz15 + ',' +
-                                       brz24 + ',' + brz33 + ',' + brz44 + ',' +
-                                       srx15 + ',' + srx24 + ',' + srx33 + ',' +
-                                       srx44 + ',' + rf15 + ',' + rf24 + ',' +
-                                       rf33 + ',' + rf44 + ',' + pwl + ',' +
-                                       mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' +
-                                       gyro3 + '\n')
-                        elif chsel == "4":
-                            fout.write(utc + ',' + lno + ',' + lat + ',' + lon + ',' + height + ',' +
-                                       nosats + ',' + ralt + ',' + pkir + ',' + pkbx + ',' +
-                                       pkby + ',' + pkbz + ',' + pkvr + ',' + pksx + ',' + pksy + ',' +
-                                       pksz + ',' + srz15 + ',' + srz24 + ',' + srz33 + ',' +
-                                       srz44 + ',' + brz15 + ',' + brz24 + ',' + brz33 + ',' +
-                                       brz44 + ',' + srx15 + ',' + srx24 + ',' + srx33 + ',' +
-                                       srx44 + ',' + sry15 + ',' + sry24 + ',' + sry33 + ',' +
-                                       sry44 + ',' + rf15 + ',' + rf24 + ',' + rf33 + ',' +
-                                       rf44 + ',' + pwl + ',' + mag1 + ',' + mag2 + ',' + speed + ',' +
-                                       crate + ',' + gyro1 + ',' + gyro2 + ',' + gyro3 + '\n')
+                            # speed conversion
+                            try:
+                                speed = str(distance(float(lat), float(lon),
+                                                     lat1, lon1) / 0.1)
+                            except:
+                                speed = 0
+                            if float(speed) > 200 or float(speed) < -200:
+                                speed = "0"
+                            lat1 = float(lat)
+                            lon1 = float(lon)
 
                 b += 1
 
-            fout.close()
+        # total_lines += b
+
+    for line in data:
+        fout.write(line)
+        fout.write('\n')
+
+    fout.close()
 
     print("Total lines read: {}".format(total_lines))
     print(f"{len(header)} headers:")
     for item in header:
         print(item)
 
-    fnameout = path + '\sysinfo.txt'
+    # fnameout = path + '\sysinfo.txt'
+    fnameout = path + '\sysinfo_VTEM' + sn + '_' + year + '.txt'
     fout = open(fnameout, 'w')
 
     l = '-' * 22
 
-    print('{0}\n System Information :\n{0}\nSample Rate :\t\t{1:>6}\n'
-          'No of Channels :\t{2:>6}\nSoftware Version :\t{3:>6}\n'
-          'Loop diameter :\t\t{4:>6}\nSystem Type :\t\t{5:>6}\n'
-          'Serial No :\t\t{6:>6}\nSystem Gain :\t\t{7:>6}\n'
-          'Base Frequency :\t{8:>6}\nDuty Cycle :\t\t{9:>6}\n'
-          'Voltage :\t\t{10:>6}\nNo Mags :\t\t{11:>6}\n'
-          'Power Monitor :\t\t{12:>6}\n'
-          .format(l, SamplR, Chan, Ver, loopd, stype, sn, gain, basef,
-                  dc, volt, nomags, pmon))
-    fout.write('{0}\n System Information :\n{0:>6}\nSample Rate :\t\t{1:>6}\n'
-               'No of Channels :\t{2:>6}\nSoftware Version :\t{3:>6}\n'
-               'Loop diameter :\t\t{4:>6}\nSystem Type :\t\t{5:>6}\n'
-               'Serial No :\t\t{6:>6}\nSystem Gain :\t\t{7:>6}\n'
-               'Base Frequency :\t{8:>6}\nDuty Cycle :\t\t{9:>6}\n'
-               'Voltage :\t\t{10:>6}\nNo Mags :\t\t{11:>6}\n'
-               'Power Monitor :\t\t{12:>6}\n'
-               .format(l, SamplR, Chan, Ver, loopd, stype, sn, gain, basef,
-                       dc, volt, nomags, pmon))
+    print('{0}\n System Information :\n{0}\nDate :\t\t\t{1:>10}\n'
+          'Time :\t\t\t\t{2:>6}\nSample Rate :\t\t{3:>6}\n'
+          'No of Channels :\t{4:>6}\nSoftware Version :\t{5:>6}\n'
+          'Loop diameter :\t\t{6:>6}\nSystem Type :\t\t{7:>6}\n'
+          'Serial No :\t\t\t{8:>6}\nSystem Gain :\t\t{9:>6}\n'
+          'Base Frequency :\t{10:>6}\nDuty Cycle :\t\t{11:>6}\n'
+          'Voltage :\t\t\t{12:>6}\nNo Mags :\t\t\t{13:>6}\n'
+          'Power Monitor :\t\t{14:>6}\n'
+          .format(l, year, time_file, SamplR, Chan, Ver, loopd, stype, sn, gain,
+                  basef, dc, volt, nomags, pmon))
+    fout.write('{0}\n System Information :\n{0}\nDate :\t\t\t{1:>10}\n'
+               'Time :\t\t\t\t{2:>6}\nSample Rate :\t\t{3:>6}\n'
+               'No of Channels :\t{4:>6}\nSoftware Version :\t{5:>6}\n'
+               'Loop diameter :\t\t{6:>6}\nSystem Type :\t\t{7:>6}\n'
+               'Serial No :\t\t\t{8:>6}\nSystem Gain :\t\t{9:>6}\n'
+               'Base Frequency :\t{10:>6}\nDuty Cycle :\t\t{11:>6}\n'
+               'Voltage :\t\t\t{12:>6}\nNo Mags :\t\t\t{13:>6}\n'
+               'Power Monitor :\t\t{14:>6}\n'
+               .format(l, year, time_file, SamplR, Chan, Ver, loopd, stype, sn, gain,
+                       basef, dc, volt, nomags, pmon))
 
     fout.close()
 
@@ -388,7 +420,7 @@ class MyFrame(wx.Frame):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((291, 507))
+        self.SetSize((291, 565))
         self.SetTitle("Extract by David")
 
         self.panel_1 = wx.Panel(self, wx.ID_ANY)
@@ -423,12 +455,12 @@ class MyFrame(wx.Frame):
         sizer_1.Add(self.checkbox_createkml, 0, wx.ALL, 2)
 
         self.button_vtemextract = wx.Button(self.panel_1, wx.ID_ANY, "Extract VTEM data")
-        self.button_vtemextract.SetMinSize((140, 25))
+        self.button_vtemextract.SetMinSize((160, 25))
         self.button_vtemextract.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         sizer_1.Add(self.button_vtemextract, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
 
         self.button_extractbin = wx.Button(self.panel_1, wx.ID_ANY, "Extract BIN file")
-        self.button_extractbin.SetMinSize((120, 25))
+        self.button_extractbin.SetMinSize((130, 25))
         self.button_extractbin.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         sizer_1.Add(self.button_extractbin, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 2)
 
@@ -513,9 +545,13 @@ class MyFrame(wx.Frame):
         event.Skip()
 
     def rename_d_pressed(self, event):  # wxGlade: MyFrame.<event_handler>
+        from datetime import date
+        pc_date = date.today().strftime("%d.%m")
+        entered_date = MyTextEntryDialog(self, 'Flight date?', '',
+                                         pc_date).GetValue()
         path = MyFileDialog(None, wildcard='*.d')
         files = path.EventHandler.Paths
-        geotech.dfile_rename_gps(files)
+        geotech.dfile_rename_gps(files, entered_date)
         print("D-Files renamed")
         event.Skip()
 
@@ -551,6 +587,20 @@ class MyFileDialog(wx.FileDialog):
 
         self.ShowModal()
 # end of class MyFileDialog
+
+
+class MyTextEntryDialog(wx.TextEntryDialog):
+    def __init__(self, *args):
+        # begin wxGlade: MyFileDialog.__init__
+        # kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
+        # kwds["style"] = kwds.get("style", 0)
+        # wx.TextEntryDialog(self, message, caption=GetTextFromUserPromptStr,
+        #                 value="", style=TextEntryDialogStyle, pos=DefaultPosition)
+        wx.TextEntryDialog.__init__(self, *args)
+        self.SetTitle("date")
+
+        self.ShowModal()
+# end of class MyTextEntryDialog
 
 
 # end of class MyApp
