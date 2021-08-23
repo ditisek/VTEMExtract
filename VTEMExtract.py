@@ -181,23 +181,24 @@ def vtem_extract(d, kst, kml):
                         srz24 = str(float(row[26]) / 10)
                         srz33 = str(float(row[35]) / 10)
                         srz44 = str(float(row[46]) / 10)
-                        if chsel == "2":
-                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
-                                        pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
-                                        brz15+','+brz24+','+brz33+','+brz44+','+rf15+','+rf24+','+rf33+','+rf44+','+
-                                        pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
-                        elif chsel == "3":
-                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
-                                        pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
-                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
-                                        brx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
-                                        mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
-                        elif chsel == "4":
-                            data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
-                                        pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
-                                        brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
-                                        brx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
-                                        rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+                        if float(utc) > 0:
+                            if chsel == "2":
+                                data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+
+                                            pkbz+','+pkvr+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+
+                                            brz15+','+brz24+','+brz33+','+brz44+','+rf15+','+rf24+','+rf33+','+rf44+','+
+                                            pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+                            elif chsel == "3":
+                                data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkbz+','+
+                                            pkvr+','+pksx+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                            brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                            brx44+','+rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+
+                                            mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
+                            elif chsel == "4":
+                                data.append(utc+','+lno+','+lat+','+lon+','+height+','+nosats+','+ralt+','+pkir+','+pkbx+','+pkby+','+pkbz+','+
+                                            pkvr+','+pksx+','+pksy+','+pksz+','+srz15+','+srz24+','+srz33+','+srz44+','+brz15+','+brz24+','+brz33+','+
+                                            brz44+','+srx15+','+srx24+','+srx33+','+srx44+','+brx15+','+brx24+','+brx33+','+
+                                            brx44+','+sry15+','+sry24+','+sry33+','+sry44+','+
+                                            rf15+','+rf24+','+rf33+','+rf44+','+pwl+','+mag1+','+mag2+','+speed+','+crate+','+gyro1+','+gyro2+','+gyro3)
 
                 elif row[0].startswith('$TDINFO'):
                     SamplR = str(row[1])
